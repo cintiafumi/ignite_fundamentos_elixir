@@ -156,3 +156,85 @@ Internamente, o mapeamento ocorre da seguinte forma. Temos uma lista `[1, 2, 3]`
 [1, 2, 3] ++ [4]
 #=> [1, 2, 3, 4]
 ```
+
+---
+
+### Tuplas
+
+Sintaticamente, as tuplas são estruturas de dados muito parecidas com as listas. Ao invés de colchetes `[]`, usa-se chaves `{}`.
+
+A diferença principal é que a tupla é armazenada em endereço contiguamente na memória, ou seja, em endereços de memória um após o outro, seguintes. O que torna possível ter agora o acesso direto aos elementos.
+
+```elixir
+{1, 2, 3}
+#=> {1, 2, 3}
+
+x = {1, 2, 3, 4, 5, 6, 7, 8}
+#=> {1, 2, 3, 4, 5, 6, 7, 8}
+elem(x, 4)
+#=> 5
+```
+
+É possível modificar os elementos. Na tupla `x`, quero colocar `"abacaxi"` na posição `4`:
+
+```elixir
+put_elem(x, 4, "abacaxi")
+#=> {1, 2, 3, 4, "abacaxi", 6, 7, 8}
+```
+
+Como temos endereços contíguos, não podemos ir acrescentando elementos.
+
+```elixir
+put_elem(x, 8, "abacaxi")
+#=>  ** (ArgumentError) argument error
+#        :erlang.setelement(9, {1, 2, 3, 4, 5, 6, 7, 8}, "abacaxi")
+```
+
+Como a tupla tem tamanho contíguo, e não é um tamanho dinâmico, não podemos acrescentar um elemento no final.
+
+Toda vez que modificamos uma tupla, criamos uma tupla nova inteira na memória e reservo esse espaço novo na memória.
+
+Por isso, sempre que tivermos um volume de dados muito grande que vai aumentando de tamanho, e tenho que iterar sobre esses dados, usamos a lista ao invés da tupla.
+
+Então, para que utilizamos a tupla?
+
+Vamos criar um arquivo pelo terminal:
+
+```bash
+echo 'meu arquivo de texto' > text.txt
+```
+
+E vamos usar o `iex` para ler esse arquivo:
+
+```elixir
+File.read("text.txt")
+#=> {:ok, "meu arquivo de texto\n"}
+```
+
+A maior aplicação na tupla são agrupamentos de dados que tem sentido entre si, ou seja, a tupla diz duas informações: a primeira informação `:ok` é que o meu arquivo foi aberto com sucesso e a segunda informação `"meu arquivo de texto\n"` é o conteúdo do arquivo em si.
+
+Ao tentar ler um arquivo inexistente, retornamos uma tupla contendo um `atom` de `:error` e o segundo elemento é um `atom` que simboliza o resultado da operação, ou seja, qual foi o erro que ocorreu. Nesse caso, é o código de arquivo inexistente:
+
+```elixir
+File.read("banana.txt")
+#=> {:error, :enoent}
+```
+
+Usamos muito as tuplas com `:ok` e `:error` para controlar o fluxo de execução das nossas aplicações e também para ser retorno de funções.
+
+O módulo `File` contém a função `read` com e sem exclamação:
+
+```elixir
+File.read
+#=> read!/1         read/1          read_link!/1    read_link/1
+```
+
+Ao chamar a função com exclamação num arquivo inexistente, recebemos uma exceção ao invés de uma tupla:
+
+```elixir
+File.read!("banana.txt")
+#=> ** (File.Error) could not read file "banana.txt": no such file or directory
+#       (elixir 1.11.4) lib/file.ex:355: File.read!/1
+```
+
+Quando não temos garantia de sucesso de uma operação, vamos usar as funções sem exclamação, assim, temos a tupla de `:ok` ou `:error` como retorno das funções.
