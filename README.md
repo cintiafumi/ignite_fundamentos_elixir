@@ -344,3 +344,181 @@ Frequentemente, vamos ver Map junto com List, principalmente na parte web parsea
 user = [%{name: "Rafael", age: 27}, %{name: "Diego", age: 26}]
 #=> [%{age: 27, name: "Rafael"}, %{age: 26, name: "Diego"}]
 ```
+
+---
+
+### Pattern matching
+
+Quando fazemos uma operação `x = 4`, isso não é uma atribuição. É uma operação de match. No elixir, o `=` é um operador de matching. Quanto que `x` tem que valer para essa expressão ser verdadeira? Por isso, o valor `4` é atribuído a `x`, para tornar a expressão verdadeira.
+
+Uma atribuição só pode acontecer no lado esquerdo da expressão:
+
+```elixir
+x = 4
+#=> 4
+4 = x
+#=> 4
+5 = x
+#=> ** (MatchError) no match of right hand side value: 4
+x = 5
+#=> 5
+```
+
+Podemos usar pattern matching em qualquer expressão no elixir. Se na orientação a objetos, tudo era um objeto. No elixir, quase tudo é uma expressão.
+
+Podemos fazer patern matching com listas:
+
+```elixir
+[a, b, c] = [1, 2, 3]
+#=> [1, 2, 3]
+a
+#=> 1
+b
+#=> 2
+c
+#=> 3
+```
+
+Sempre a expressão tem que ser igualzinha.
+
+```elixir
+[a, b, 4] = [1, 2, 3]
+#=> ** (MatchError) no match of right hand side value: [1, 2, 3]
+
+[a, b, 4] = [1, 2, 4]
+#=> [1, 2, 4]
+
+[b] = [1, 2, 4]
+#=> ** (MatchError) no match of right hand side value: [1, 2, 4]
+```
+
+Podemos fazer pattern matching com `head` e `tail`:
+
+```elixir
+hd [1,2,4]
+#=> 1
+tl [1,2,4]
+#=> [2, 4]
+
+[head | tail] = [1,2,3,4,5]
+#=> [1, 2, 3, 4, 5]
+head
+#=> 1
+tail
+#=> [2, 3, 4, 5]
+```
+
+Quando não precisamos de um dos valores, ainda assim precisamos dele para satisfazer o pattern match. Podemos usar a notação de `_` ou `_tail` para ignorar o valor da cauda:
+
+```elixir
+[head | _tail] = [1,2,3,4,5]
+#=> [1, 2, 3, 4, 5]
+
+_tail
+#=> warning: the underscored variable "_tail" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+```
+
+Pattern matching de Map, não precisa ter o Map por completo por ter chave e valor:
+
+```elixir
+%{c: valor} = %{a: 1, b: 2, c: 3, d: 4}
+#=> %{a: 1, b: 2, c: 3, d: 4}
+valor
+#=> 3
+```
+
+Se usar uma chave inexistente, vai dar erro:
+
+```elixir
+%{x: valor} = %{a: 1, b: 2, c: 3, d: 4}
+#=> ** (MatchError) no match of right hand side value: %{a: 1, b: 2, c: 3, d: 4}
+```
+
+Podemos fazer matching em várias chaves ao mesmo tempo, e não precisa estar na ordem pois Map não infere ordem das chaves
+
+```elixir
+%{c: valor, a: valor_a} = %{a: 1, b: 2, c: 3, d: 4}
+#=> %{a: 1, b: 2, c: 3, d: 4}
+valor
+#=> 3
+valor_a
+#=> 1
+```
+
+Pattern matching com tuplas:
+
+```elixir
+{:ok, result} = {:ok, 13}
+#=> {:ok, 13}
+result
+#=> 13
+```
+
+Quando fazemos o pattern matching, por exemplo, da tupla do `File.read`, também garantimos que o resultado retornou sucesso. Caso contrário, não dá matching.
+
+```elixir
+File.read("text.txt")
+#=> {:ok, "meu arquivo de texto\n"}
+{:ok, result} = File.read("text.txt")
+#=> {:ok, "meu arquivo de texto\n"}
+result
+#=> "meu arquivo de texto\n"
+{:ok, result} = File.read("banana.txt")
+#=> ** (MatchError) no match of right hand side value: {:error, :enoent}
+```
+
+---
+
+### Pin operator
+
+É quando quero fixar um valor em uma variável, sem poder reatribuir com um pattern matching novo:
+
+```elixir
+ˆx = 4
+#=> 4
+x
+#=> 4
+ˆx = 5
+#=> ** (MatchError) no match of right hand side value: 5
+```
+
+---
+
+### Funções anônimas
+
+Armazenar uma função anônima em uma variável a partir de um pattern matching:
+
+```elixir
+multiply = fn a, b -> a * b end
+#Function<43.79398840/2 in :erl_eval.expr/5>
+```
+
+E para executar a função, usamos a notação:
+
+```elixir
+multiply.(2,3)
+#=> 6
+```
+
+Criando a variável `read_file` com uma função anônima:
+
+```elixir
+read_file = fn
+{:ok, result} -> "Success #{result}"
+{:error, reason} -> "Error #{reason}"
+end
+```
+
+Nos argumentos da função, é quase que uma condicional. Se minha função receber `{:ok, result}`, vou retornar a string `"Success #{result}"`. E se a função receber `{:error, reason}`, vou retornar a string `"Error #{reason}"`.
+
+Ao executar a função:
+
+```elixir
+read_file.(File.read("text.txt"))
+#=> "Success meu arquivo de texto\n"
+
+read_file.(File.read("banana.txt"))
+#=> "Error enoent"
+```
+
+Ou seja, foi possível controlar o fluxo de execução da função sem usar condicionais `if` ou `switch case`, mas só com uso de pattern matching e com as tuplas.
