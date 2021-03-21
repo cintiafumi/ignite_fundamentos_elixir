@@ -238,3 +238,109 @@ File.read!("banana.txt")
 ```
 
 Quando não temos garantia de sucesso de uma operação, vamos usar as funções sem exclamação, assim, temos a tupla de `:ok` ou `:error` como retorno das funções.
+
+---
+
+### Maps
+
+Usamos [Map](https://hexdocs.pm/elixir/Map.html) quando queremos armazenar chave e valor na estrutura de dados de acesso direto por chave. A sintaxe das chaves são com `atoms` ou com notação de `strings` e `=>`:
+
+```elixir
+%{a: 1, b: 2, c: 3}
+#=> %{a: 1, b: 2, c: 3}
+```
+
+ou
+
+```elixir
+%{"a" => 1, "b" => 2, "c" => 3}
+#=> %{"a" => 1, "b" => 2, "c" => 3}
+```
+
+A diferença é que com `atoms` é possível acessar os valores através do `meu_map.a`:
+
+```elixir
+meu_map = %{a: 1, b: 2, c: 3}
+#=> %{a: 1, b: 2, c: 3}
+meu_map.a
+#=> 1
+meu_map.b
+#=> 2
+meu_map.c
+#=> 3
+```
+
+ou através do colchete com o atom `meu_map[:a]`
+
+```elixir
+meu_map[:a]
+#=> 1
+```
+
+Quando usamos strings, não tem como fazer o acesso direto com notação de ponto. Apenas com colchete `meu_map["a"]`:
+
+```elixir
+meu_map = %{"a" => 1, "b" => 2, "c" => 3}
+#=> %{"a" => 1, "b" => 2, "c" => 3}
+meu_map.a
+#=> ** (KeyError) key :a not found in: %{"a" => 1, "b" => 2, "c" => 3}
+
+meu_map["a"]
+1
+```
+
+Os Maps também podem ter valores mistos, ou seja, pode ser armazenados dados diferentes. Com o cuidado da chave ser do mesmo tipo. Ex: se for `atom`, todas as chaves devem ser `atoms`.
+
+```elixir
+meu_map.a
+#=> ** (KeyError) key :a not found in: %{"a" => 1, "b" => 2, "c" => 3}
+
+meu_map["a"]
+#=> 1
+```
+
+Quando usamos Listas ou Maps, temos módulos para auxiliar, como o [Map.get](https://hexdocs.pm/elixir/Map.html#get/3)
+
+```elixir
+Map.get(meu_map, "a")
+#=> 1
+```
+
+ou o [Map.put](https://hexdocs.pm/elixir/Map.html#put/3) que pode adicionar um novo valor se a chave não existir ou substitui o valor se a chave existir:
+
+```elixir
+Map.put(meu_map, "d", 5.5)
+#=> %{"a" => 1, "b" => 2, "c" => 3, "d" => 5.5}
+
+Map.put(meu_map, "c", 3.5)
+#=> %{"a" => 1, "b" => 2, "c" => 3.5}
+```
+
+Lembrando que estamos em uma linguagem imutável, se quisermos que a adição de uma chave ou que substituição de valor permaneça no Map, devemos reatribuir à variável o Map novo.
+
+Outra forma de atualizar um Map é pela sintaxe:
+
+```elixir
+x = %{c: 5, d: 8, e: 9}
+#=> %{c: 5, d: 8, e: 9}
+
+ %{x | d: 6}
+#=> %{c: 5, d: 6, e: 9}
+```
+
+E diferente do método `Map.put`, não é possível adicionar uma chave nova com a notação de `|`:
+
+```elixir
+%{x | d: 6, f: 10}
+# ** (KeyError) key :f not found in: %{c: 5, d: 6, e: 9}
+#     (stdlib 3.14) :maps.update(:f, 10, %{c: 5, d: 6, e: 9})
+#     (stdlib 3.14) erl_eval.erl:259: anonymous fn/2 in :erl_eval.expr/5
+#     (stdlib 3.14) lists.erl:1267: :lists.foldl/3
+```
+
+Frequentemente, vamos ver Map junto com List, principalmente na parte web parseando JSON:
+
+```elixir
+user = [%{name: "Rafael", age: 27}, %{name: "Diego", age: 26}]
+#=> [%{age: 27, name: "Rafael"}, %{age: 26, name: "Diego"}]
+```
