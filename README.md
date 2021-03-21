@@ -161,7 +161,7 @@ Internamente, o mapeamento ocorre da seguinte forma. Temos uma lista `[1, 2, 3]`
 
 ### Tuplas
 
-Sintaticamente, as tuplas são estruturas de dados muito parecidas com as listas. Ao invés de colchetes `[]`, usa-se chaves `{}`.
+Sintaticamente, as [tuplas](https://hexdocs.pm/elixir/Tuple.html) são estruturas de dados muito parecidas com as listas. Ao invés de colchetes `[]`, usa-se chaves `{}`.
 
 A diferença principal é que a tupla é armazenada em endereço contiguamente na memória, ou seja, em endereços de memória um após o outro, seguintes. O que torna possível ter agora o acesso direto aos elementos.
 
@@ -175,7 +175,7 @@ elem(x, 4)
 #=> 5
 ```
 
-É possível modificar os elementos. Na tupla `x`, quero colocar `"abacaxi"` na posição `4`:
+É possível modificar os elementos. Na tupla `x`, quero colocar `"abacaxi"` na posição `4`. Usamos a função [put_elem](https://hexdocs.pm/elixir/Kernel.html#put_elem/3):
 
 ```elixir
 put_elem(x, 4, "abacaxi")
@@ -204,7 +204,7 @@ Vamos criar um arquivo pelo terminal:
 echo 'meu arquivo de texto' > text.txt
 ```
 
-E vamos usar o `iex` para ler esse arquivo:
+E vamos usar o `iex` para ler esse arquivo pelo [File.read](https://hexdocs.pm/elixir/File.html#read/1):
 
 ```elixir
 File.read("text.txt")
@@ -229,7 +229,7 @@ File.read
 #=> read!/1         read/1          read_link!/1    read_link/1
 ```
 
-Ao chamar a função com exclamação num arquivo inexistente, recebemos uma exceção ao invés de uma tupla:
+Ao chamar a função com exclamação [File.read!](https://hexdocs.pm/elixir/File.html#read!/1) num arquivo inexistente, recebemos uma exceção ao invés de uma tupla:
 
 ```elixir
 File.read!("banana.txt")
